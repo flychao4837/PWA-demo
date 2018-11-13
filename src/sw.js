@@ -174,16 +174,21 @@ self.addEventListener('push', function(event) {
 });
 
 //PostMessage -- 页面和service worker之间的数据传输
-
+//向特定的页面传递数据
+function PostMessageToClient(msg){
+    self.clients.matchAll().then(clientList => {
+        clientList.forEach(client => {
+            console.log("client", client);
+            //TODO -- 这里的Client：WindowClient并没有postMessage方法
+            client.postMessage('Hi, I am send from Service worker！');
+        })
+    });
+}
 //接收页面传来的数据
 self.addEventListener('message', function(ev) {
     console.log(ev.data);
+    PostMessageToClient("haha")
 });
 
-//向特定的页面传递数据
-self.clients.matchAll().then(clientList => {
-    clientList.forEach(client => {
-        console.log("client", client);
-        client.postMessage('Hi, I am send from Service worker！');
-    })
-});
+
+

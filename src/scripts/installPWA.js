@@ -14,32 +14,39 @@ class InstallPWA {
     install() {
         if ('serviceWorker' in navigator) {
 
-        navigator.serviceWorker.register('/sw.js', {
-            scope: '/'
-            })
+        navigator.serviceWorker.register('/sw.js', {scope: '/'})
             .then(
                 (registration) => {
                     console.log('ServiceWorker 注册成功！作用域为: ', registration.scope);
                     //人为控制cache更新方式1：安装时设置版本号，根据版本号做本地更新比对
                     if(localStorage.getItem("ws_version") !== Version){
+                        //Note -- 注意 update是一个异步操作，不能立即得到serviceWorker.controller，注意回调的顺序
                         registration.update().then(
                             ()=>{
                                 localStorage.setItem("ws_version", Version);
+                                this.bindAct();
                             }
                         )
+                    }else{
+                        this.bindAct();
                     }
-                    //添加通知
-                    this.addNotify();
-
-                    //ServiceWorker注册成功后才能向ServiceWorker发送数据
-                    this.isCanPostMessage = true;
-                    this.sendMessageToServiceWorker('hello sw!')
+                    
                 }
             )
             .catch(err => console.log('ServiceWorker 注册失败: ', err));
         }
     }
     
+    bindAct(){
+        //添加通知
+        //this.addNotify();
+
+        //ServiceWorker注册成功后才能向ServiceWorker发送数据,但是此时ServiceWorker.controller不一定建立完毕，可能处于activing中
+        this.isCanPostMessage = true;
+        this.sendMessageToServiceWorker('hello sw!');
+        
+        this.getPostMessage();
+    }
 
     //Notification -- 消息订阅
     //不同浏览器需要用不同的推送消息服务器。以 Chrome 上使用 Google Cloud Messaging<GCM> 作为推送服务(需要注册Key)
@@ -96,10 +103,19 @@ class InstallPWA {
     //与iframe传递数据的PostMessage方法的异同，同属于HTML5的PostMessage方法
     sendMessageToServiceWorker(msg) {
         const controller = navigator.serviceWorker.controller;
+        debugger
         if (!controller) {
             return;
         }
         controller.postMessage(msg, []);
+    }
+
+    //接受PostMessage数据
+    //serviceWorker,worker,window 三种场景下的postMessage主体是不一样的，在不同场景下要取对应的对象窗体
+    getPostMessage(){
+        navigator.serviceWorker.addEventListener('message', (e) => {
+            console.log("从serviceworker收到消息",e)
+        });
     }
 }
 

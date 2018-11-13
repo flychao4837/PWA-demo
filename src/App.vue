@@ -17,9 +17,6 @@ export default {
   mounted() {
     new InstallPWA();
   },
-  methods: {
-    
-  }
 }
 </script>
 
