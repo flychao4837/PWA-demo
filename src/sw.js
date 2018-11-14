@@ -1,5 +1,5 @@
 // 用于标注创建的缓存，也可以根据它来建立版本规范
-const CACHE_NAME = "local_cache_v1.0.0";
+const CACHE_NAME = "local_cache_v1.1.0";
 // 列举要默认缓存的静态资源，一般用于离线使用
 const urlsToCache = [
     'favicon.ico',
@@ -10,7 +10,9 @@ const urlsToCache = [
     "static/assets/main.css"
 ];
 const excludeFiles = [
-    "app.js"
+    "app.js",
+    'static/workers/testWorker.js',
+    'static/workers/workA.js'
 ]
 
 //WorkerLocation, service worker专有对象,表明serviceworker文件绝对地址

@@ -5,7 +5,6 @@ import Vue from 'vue';
 
 const Version = "1.0.0"; //当前版本号
 class InstallPWA {
-    isCanPostMessage = false; //能否向ServiceWorker传递数据
     constructor() {
         this.install();
     }
@@ -42,7 +41,6 @@ class InstallPWA {
         //this.addNotify();
 
         //ServiceWorker注册成功后才能向ServiceWorker发送数据,但是此时ServiceWorker.controller不一定建立完毕，可能处于activing中
-        this.isCanPostMessage = true;
         this.sendMessageToServiceWorker('hello sw!');
         
         this.getPostMessage();
@@ -89,8 +87,7 @@ class InstallPWA {
             // 订阅成功
             console.log('订阅成功！', subscription.endpoint);
 
-            // 做更多的事情，如将订阅信息发送给后端，用于后端推送识别
-            // const key = subscription.getKey('p256dh');
+            // 做更多的事情，如将订阅信息发送给后端
             //sendMessageToServiceWorker
         })
         .catch(function (e) {
@@ -115,6 +112,7 @@ class InstallPWA {
     getPostMessage(){
         navigator.serviceWorker.addEventListener('message', (e) => {
             console.log("从serviceworker收到消息",e)
+            //TODO -- 这里对收到的消息做origin验证，根据不同类型做不同的处理（switch）
         });
     }
 }
